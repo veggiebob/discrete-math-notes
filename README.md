@@ -3,7 +3,7 @@ For a certain integer `x` and a certain Encryption known as `En`,
 the function `(decryptWith En . encryptWith En)` is an identity
 function as long as `n < p * q`
 
-####Examples
+#### Examples
 ```
 > en = createEncryption 13 29    
 > en
