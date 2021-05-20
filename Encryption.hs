@@ -1,4 +1,12 @@
-module Encryption (createEncryption, encryptWith, decryptWith, encryptString, decryptToString) where
+module Encryption (
+    createEncryption,
+    encryptWith,
+    decryptWith,
+    encryptString,
+    decryptToString,
+    homeworkEncrypt,
+    homeworkDecrypt
+    ) where
 
 import Data.List (intersect)
 import Data.Char (ord, chr)
@@ -13,13 +21,16 @@ instance Show Encryption where
                                     ", d = " ++ show d ++ " }"
 
 createEncryption p q = Encryption p q e d
-    where e = head . filter (coprime ((p - 1) * (q - 1))) $ [2..]
-          d = e `inverseMod` ((p - 1) * (q - 1))
+    where e = head . filter (coprime tocient) $ [2..tocient]
+          d = e `inverseMod` tocient
+          tocient = tocient
 
 -- helper methods
-factors n = [x | x <- [1..n], n `mod` x == 0]
+factors n = [x | x <- [1..(ceiling . sqrt) n], n `mod` x == 0]
 coprime x y = intersect (factors x) (factors y) == [1]
 congruentOver n x y = (x `mod` n) == (y `mod` n)
+
+-- naive inverseMod, only finds positive solutions
 x `inverseMod` y = helper 1 x y where
     helper n a b = if congruentOver y 1 (x * n) then n else helper (n + 1) x y
 
@@ -44,3 +55,28 @@ decryptToString en = map (chr . fromInteger . decryptWith en)
 encryptionLimit en = helper 5
     where helper n | (decryptWith en . encryptWith en $ n) == n = helper (n+1)
                    | otherwise = n
+
+--numberToLetterTable :: Integral a => [(a, Char)]
+numberToLetterTable = zip [1..] ['A'..'Z']
+
+--letterToNumberTable :: Integral a => [(Char, a)]
+letterToNumberTable = zip ['A'..'Z'] [1..]
+
+numberToLetter = (`lookup` numberToLetterTable)
+letterToNumber = (`lookup` letterToNumberTable)
+
+
+--homeworkEncrypt :: Integral b => Encryption -> [a] -> [b]
+homeworkEncrypt en = map $
+        encryptWith en .
+        unsafeUnjust .
+        letterToNumber
+        where unsafeUnjust (Just x) = x
+              unsafeUnjust Nothing = -1
+
+--homeworkDecrypt :: Integral b => Encryption -> [b] -> [a]
+homeworkDecrypt en = map $
+    numberToLetter .
+    fromInteger .
+    decryptWith en
+
