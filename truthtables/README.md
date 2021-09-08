@@ -6,6 +6,7 @@
 | `->`     | implication       |
 | `<=>`    | biconditional     |
 | `~`      | not               |
+| `x`      | xor               |
 
 *Note: the `~` should be separated from other operators by a parethesis*
 > example: `p^~q` gives an error, while `p^(~q)` is a valid syntax.  

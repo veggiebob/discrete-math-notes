@@ -1,5 +1,5 @@
 module Logic (createTruthTable, prettyPrintTruthTable, serializeLogic) where
-import Data.Maybe (fromJust)
+import Data.Maybe (fromJust, isJust)
 import Data.List (intercalate)
 
 -- misc
@@ -31,12 +31,16 @@ a \/ b = a `lor` b
 a ==> b = a `lifthen` b
 a <=> b = (a ==> b) `land` (b ==> a)
 
+xor :: Bool -> Bool -> Bool
+xor = (/=)
+
 stringOperatorTable :: String -> Maybe (Bool -> Bool -> Bool)
 stringOperatorTable s | s == "^" = Just (/\)
                       | s == "v" = Just (\/)
                       | s == "->" = Just (==>)
                       | s == "<=>" = Just (<=>)
                       | s == "~" = Just (~~) -- dummy on left side will be "_"
+                      | s == "x" = Just (xor)
                       | otherwise =  Nothing -- error $ "stringOperatorTable: no function for '" ++ s ++ "'!"
 
 -- expressions
@@ -156,12 +160,10 @@ getToken s@(c:cs) | c == '(' = (OpenParen, 1)
                   | inop = (Operator op, length op)
                   | c `elem` ('_':['a'..'z']) = (Letter c, 1)
                   | otherwise = (Empty, 1)
-                  where nop = filter (inTable . stringOperatorTable) [take n s | n<-[0..(length s - 1)]]
+                  where nop = filter (isJust . stringOperatorTable) [take n s | n<-[0..(length s - 1)]]
                         inop = length nop > 0
                         op = head nop
                         inside xs x = x `elem` xs
-                        inTable Nothing = False
-                        inTable _ = True
 
 parse :: String -> [Token]
 parse s = parseHelper s []
