@@ -2,6 +2,10 @@ module Set where
 import Data.List
 import Data.Function (on)
 
+cartProd :: [a] -> [b] -> [(a, b)]
+cartProd (x:xs) ys = map ((,) x) ys ++ cartProd xs ys
+cartProd [] ys = []
+
 isSet :: Eq a => [a] -> Bool
 isSet set = length (nub set) == length set
 
